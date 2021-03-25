@@ -75,10 +75,16 @@ class Crawler:
         sites = self.get_unvisited_sites()
         for site in sites:
             driver.get(site[1])
+            print(site[1])
             page_source = driver.page_source
             page_model = {}
             for func in callback_list:
                 func(page_source, page_model)
+            # print(page_model)
+            page_model['html'] = page_source
+            page_model['url'] = site[1]
+            page_model['url_id'] = site[0]
+            break
         sleep(1)
 
 
