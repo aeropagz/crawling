@@ -3,6 +3,7 @@ from selenium import webdriver
 from bs4 import BeautifulSoup
 from typing import Callable, List
 from time import sleep
+import json
 
 
 class Crawler:
@@ -20,7 +21,7 @@ class Crawler:
         self.__options.add_argument("--headless")
 
     def __setup_db(self, username: str, password: str, database: str) -> None:
-        self.__db_conn = psycopg2.connect(f"user={username} password={password} dbname={database}")
+        self.__db_conn = psycopg2.connect(f"user={username} password={password} dbname={database} host=192.168.50.72")
         self.__db_cur = self.__db_conn.cursor()
 
     def collect_item_links(self, start_url: str, anchor_class_item: str, anchor_class_next: str) -> None:
@@ -55,6 +56,7 @@ class Crawler:
             print(page_source)
             raise
 
+
     def push_new_urls(self, links: list) -> None:
         unique_links = list(set(links) - set(self.get_all_urls()))
         for link in unique_links:
@@ -62,33 +64,55 @@ class Crawler:
                                   (link, False))
         self.__db_conn.commit()
 
+    def push_crawled_urls(self, page_models: list) -> None:
+        rows_affected = 0
+        for model in page_models:
+            self.__db_cur.execute("INSERT INTO public.recipes ( title, html, ingredients, rating, reviews, "
+                                  "instructions, author, url, url_id, tags, amount_comments) VALUES (%s, %s, %s,%s,"
+                                  "%s,%s,%s,%s,%s,%s,%s)",
+                                  (model["title"], model["html"], json.dumps(model["ingredients"]), model["rating"],
+                                   model["reviews"], model["instructions"], model["author"], model["url"],
+                                   model["url_id"], model["tags"], model["amount_comments"]))
+            rows_affected += self.__db_cur.rowcount
+        if rows_affected != len(page_models):
+            print("Something went wrong during upload crawled data")
+            print("affected rows are not equal to passed-in pages")
+            raise
+        self.__db_conn.commit()
+
     def get_all_urls(self) -> list:
         self.__db_cur.execute("SELECT * FROM public.url_visited")
         return self.__db_cur.fetchall()
 
-    def get_unvisited_sites(self) -> list:
-        self.__db_cur.execute("SELECT * FROM public.url_visited WHERE visited = FALSE LIMIT 50")
+    def get_unvisited_sites(self, limit=50) -> list:
+        self.__db_cur.execute("SELECT * FROM public.url_visited WHERE visited = FALSE LIMIT %s", [limit])
         return self.__db_cur.fetchall()
+
+    def check_visited_sites(self, url_ids: list) -> None:
+        for url_id in url_ids:
+            self.__db_cur.execute("UPDATE public.url_visited SET visited = TRUE WHERE id = %s", [url_id])
+        self.__db_conn.commit()
 
     def crawl_items(self, callback_list: List[Callable[[str, dict], None]]) -> None:
         driver = webdriver.Chrome("C:/chromedriver/chromedriver.exe", options=self.__options)
-        sites = self.get_unvisited_sites()
+        sites = self.get_unvisited_sites(2)
+        url_ids = []
+        crawled_data = []
         for site in sites:
             driver.get(site[1])
-            print(site[1])
+            url_ids.append(site[0])
             page_source = driver.page_source
             page_model = {}
+
             for func in callback_list:
                 func(page_source, page_model)
-            # print(page_model)
-            page_model['html'] = page_source
+
             page_model['url'] = site[1]
             page_model['url_id'] = site[0]
-            break
-        sleep(1)
+            # print(page_model)
+            page_model['html'] = page_source
+            crawled_data.append(page_model)
 
-
-
-
-
-
+        self.push_crawled_urls(crawled_data)
+        self.check_visited_sites(url_ids)
+        sleep(1.5)
