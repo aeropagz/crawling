@@ -56,7 +56,6 @@ class Crawler:
             print(page_source)
             raise
 
-
     def push_new_urls(self, links: list) -> None:
         unique_links = list(set(links) - set(self.get_all_urls()))
         for link in unique_links:
@@ -93,12 +92,13 @@ class Crawler:
             self.__db_cur.execute("UPDATE public.url_visited SET visited = TRUE WHERE id = %s", [url_id])
         self.__db_conn.commit()
 
-    def crawl_items(self, callback_list: List[Callable[[str, dict], None]]) -> None:
+    def crawl_items(self, callback_list: List[Callable[[str, dict], None]], limit: int = 50) -> None:
         driver = webdriver.Chrome("C:/chromedriver/chromedriver.exe", options=self.__options)
-        sites = self.get_unvisited_sites(2)
+        sites = self.get_unvisited_sites(limit)
         url_ids = []
         crawled_data = []
         for site in sites:
+            print(site[1])
             driver.get(site[1])
             url_ids.append(site[0])
             page_source = driver.page_source
@@ -112,7 +112,9 @@ class Crawler:
             # print(page_model)
             page_model['html'] = page_source
             crawled_data.append(page_model)
+            if len(crawled_data) > 50:
+                self.push_crawled_urls(crawled_data)
+                self.check_visited_sites(url_ids)
+                crawled_data = []
 
-        self.push_crawled_urls(crawled_data)
-        self.check_visited_sites(url_ids)
-        sleep(1.5)
+        sleep(4)
