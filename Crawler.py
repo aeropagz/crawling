@@ -1,5 +1,5 @@
 import psycopg2
-from selenium import webdriver
+import requests
 from bs4 import BeautifulSoup
 from typing import Callable, List
 from time import sleep
@@ -11,21 +11,13 @@ class Crawler:
         self.__db_conn = None
         self.__db_cur = None
         self.__options = None
-        self.__set_selenium_options()
         self.__setup_db(username, password, database)
-
-    def __set_selenium_options(self):
-        self.__options = webdriver.ChromeOptions()
-        self.__options.add_argument("--ignore-certificates-errors")
-        self.__options.add_argument("--incognito")
-        self.__options.add_argument("--headless")
 
     def __setup_db(self, username: str, password: str, database: str) -> None:
         self.__db_conn = psycopg2.connect(f"user={username} password={password} dbname={database} host=192.168.50.72")
         self.__db_cur = self.__db_conn.cursor()
 
     def collect_item_links(self, start_url: str, anchor_class_item: str, anchor_class_next: str) -> None:
-        driver = webdriver.Chrome("C:/chromedriver/chromedriver.exe", options=self.__options)
         links = []
         links_collected = 0
         next_url = start_url
@@ -35,8 +27,7 @@ class Crawler:
                 next_url = data
         try:
             while next_url:
-                driver.get(next_url)
-                page_source = driver.page_source
+                page_source = requests.get(next_url).content
                 soup = BeautifulSoup(page_source, "lxml")
 
                 for a in soup.find_all("a", class_=anchor_class_item, href=True):
@@ -93,15 +84,13 @@ class Crawler:
         self.__db_conn.commit()
 
     def crawl_items(self, callback_list: List[Callable[[str, dict], None]], limit: int = 50) -> None:
-        driver = webdriver.Chrome("C:/chromedriver/chromedriver.exe", options=self.__options)
         sites = self.get_unvisited_sites(limit)
         url_ids = []
         crawled_data = []
         for site in sites:
             print(site[1])
-            driver.get(site[1])
             url_ids.append(site[0])
-            page_source = driver.page_source
+            page_source = requests.get(site[1]).content
             page_model = {}
 
             for func in callback_list:
