@@ -83,14 +83,18 @@ class Crawler:
             self.__db_cur.execute("UPDATE public.url_visited SET visited = TRUE WHERE id = %s", [url_id])
         self.__db_conn.commit()
 
-    def crawl_items(self, callback_list: List[Callable[[str, dict], None]], limit: int = 50) -> None:
+    def crawl_items(self, callback_list: List[Callable[[str, dict], None]], limit: int = 100) -> None:
         sites = self.get_unvisited_sites(limit)
         url_ids = []
         crawled_data = []
         for site in sites:
             print(site[1])
-            url_ids.append(site[0])
-            page_source = requests.get(site[1]).content
+            try:
+                page_source = requests.get(site[1]).content
+                url_ids.append(site[0])
+            except Exception as e:
+                print(e)
+                pass
             page_model = {}
 
             for func in callback_list:
@@ -101,9 +105,10 @@ class Crawler:
             # print(page_model)
             page_model['html'] = page_source
             crawled_data.append(page_model)
-            if len(crawled_data) > 50:
+            if len(crawled_data) >= 50:
                 self.push_crawled_urls(crawled_data)
                 self.check_visited_sites(url_ids)
                 crawled_data = []
-
-        sleep(4)
+            sleep(4)
+            self.push_crawled_urls(crawled_data)
+            self.check_visited_sites(url_ids)
