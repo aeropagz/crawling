@@ -110,5 +110,5 @@ class Crawler:
                 self.check_visited_sites(url_ids)
                 crawled_data = []
             sleep(4)
-            self.push_crawled_urls(crawled_data)
-            self.check_visited_sites(url_ids)
+        self.push_crawled_urls(crawled_data)
+        self.check_visited_sites(url_ids)
