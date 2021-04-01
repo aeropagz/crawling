@@ -94,7 +94,7 @@ class Crawler:
                 url_ids.append(site[0])
             except Exception as e:
                 print(e)
-                pass
+                continue
             page_model = {}
 
             for func in callback_list:
