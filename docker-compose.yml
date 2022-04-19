@@ -15,7 +15,7 @@ services:
       - "db"
 
   db:
-    image: 'postgres:13.1-alpine'
+    image: "postgres:13.1-alpine"
     environment:
       - POSTGRES_USER=klaas
       - POSTGRES_PASSWORD=password
@@ -24,13 +24,13 @@ services:
       - "5432:5432"
     volumes:
       - chefkoch_data:/var/lib/postgresql/data
-      - var/init.sql:/docker-entrypoint-initdb.d/init.sql
+      - ./var/init.sql:/docker-entrypoint-initdb.d/init.sql
 
   adminer:
-      image: adminer
-      restart: always
-      ports:
-        - "8081:8080"
+    image: adminer
+    restart: always
+    ports:
+      - "8081:8080"
 
-  volumes:
-    chefkoch_data:
+volumes:
+  chefkoch_data:

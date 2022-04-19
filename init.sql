@@ -19,7 +19,7 @@ CREATE DATABASE crawling
 CREATE TABLE IF NOT EXISTS public.url_visited
 (
     id bigint NOT NULL GENERATED ALWAYS AS IDENTITY ( INCREMENT 1 START 1 MINVALUE 1 MAXVALUE 9223372036854775807 CACHE 1 ),
-    url character varying(400) COLLATE pg_catalog."default",
+    url text COLLATE pg_catalog."default" UNIQUE,
     visited boolean NOT NULL DEFAULT false,
     CONSTRAINT url_visited_pkey PRIMARY KEY (id)
 )
@@ -40,8 +40,8 @@ CREATE TABLE IF NOT EXISTS public.recipes
     html text COLLATE pg_catalog."default" NOT NULL,
     ingredients json,
     instructions text COLLATE pg_catalog."default",
-    author character varying(50) COLLATE pg_catalog."default",
-    url character varying(400) COLLATE pg_catalog."default",
+    author text COLLATE pg_catalog."default",
+    url text COLLATE pg_catalog."default",
     url_id bigint,
     tags text[] COLLATE pg_catalog."default",
     title text COLLATE pg_catalog."default",
@@ -55,3 +55,5 @@ TABLESPACE pg_default;
 
 ALTER TABLE IF EXISTS public.recipes
     OWNER to klaas;
+
+
