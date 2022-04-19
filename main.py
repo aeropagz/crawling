@@ -1,5 +1,6 @@
 from Crawler import Crawler
 from bs4 import BeautifulSoup
+import os
 import re
 
 
@@ -79,7 +80,12 @@ def get_tags(page_source: str, model: dict) -> None:
 
 
 if __name__ == "__main__":
-    crawler = Crawler("klaas", "brassica", "crawling")
-    # crawler.collect_item_links("https://www.chefkoch.de/rs/s0/Rezepte.html", "rsel-recipe", "bi-paging-next")
-    while True:
-        crawler.crawl_items([get_recipe_name, get_rating, get_ingredients, get_author, get_instruction, get_tags], 200)
+    db_user = os.environ.get("DB_USER", "postgres")
+    db_pass = os.environ.get("DB_PASS", "postgres")
+    db_name = os.environ.get("DB_NAME", "crawling")
+    db_host = os.environ.get("DB_HOST", "localhost")
+
+    crawler = Crawler(db_user, db_pass, db_name, db_host)
+    crawler.collect_item_links("https://www.chefkoch.de/rs/s0/Rezepte.html", "rsel-recipe", "bi-paging-next")
+    #while True:
+    #    crawler.crawl_items([get_recipe_name, get_rating, get_ingredients, get_author, get_instruction, get_tags], 200)

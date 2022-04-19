@@ -7,14 +7,14 @@ import json
 
 
 class Crawler:
-    def __init__(self, username: str, password: str, database: str):
+    def __init__(self, username: str, password: str, database: str, host: str):
         self.__db_conn = None
         self.__db_cur = None
         self.__options = None
-        self.__setup_db(username, password, database)
+        self.__setup_db(username, password, database, host)
 
-    def __setup_db(self, username: str, password: str, database: str) -> None:
-        self.__db_conn = psycopg2.connect(f"user={username} password={password} dbname={database} host=192.168.50.72")
+    def __setup_db(self, username: str, password: str, database: str, host: str) -> None:
+        self.__db_conn = psycopg2.connect(f"user={username} password={password} dbname={database} host={host}")
         self.__db_cur = self.__db_conn.cursor()
 
     def collect_item_links(self, start_url: str, anchor_class_item: str, anchor_class_next: str) -> None:
@@ -28,7 +28,7 @@ class Crawler:
         try:
             while next_url:
                 page_source = requests.get(next_url).content
-                soup = BeautifulSoup(page_source, "lxml")
+                soup = BeautifulSoup(page_source, "html.parser")
 
                 for a in soup.find_all("a", class_=anchor_class_item, href=True):
                     links.append(a["href"])
