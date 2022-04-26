@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from Ingredient import Ingredient
+from model.Ingredient import Ingredient
 
 
 @dataclass(frozen=True)
@@ -10,4 +10,4 @@ class Recipe:
     instruction: str
     portion: int
     ingredients: list[Ingredient]
-    
+    categories: str

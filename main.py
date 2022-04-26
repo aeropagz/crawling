@@ -1,14 +1,17 @@
 from Crawler import Crawler
 from bs4 import BeautifulSoup
 import os
-import re
 import logging
-from extractors import *
 
+from extractors import *
+from util import CustomFormatter
 
 from RecipeDb import RecipeDb
 
 logging.basicConfig(format='%(asctime)s - %(levelname)s | %(name)s: %(message)s', level=logging.INFO)
+
+
+
 
 
 

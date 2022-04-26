@@ -1,8 +1,8 @@
 from dataclasses import dataclass
 
 
-@dataclass
+@dataclass(frozen=True)
 class Ingredient:
     name: str
     amount: float
-    categories: set[str]
+    unit: str

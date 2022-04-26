@@ -1,16 +1,24 @@
 import requests
+import re
 from bs4 import BeautifulSoup
 from typing import Callable, List
 import logging
 from time import sleep
+from model.RecipePage import RecipePage
+
+from util import stripify, parse_amount
+from model.Ingredient import Ingredient
 from RecipeDb import RecipeDb
 
 logger = logging.getLogger("crawler")
 
 
 class Crawler:
-    def __init__(self, recipe_db: RecipeDb):
+    def __init__(self, recipe_db: RecipeDb, min_rating: float = 4.0):
         self._db = recipe_db
+        self._min_rating = min_rating
+        self._soup = None
+
 
     def get_last_url(self) -> str | None:
         with open("last_url.txt", "r+") as file:
@@ -39,10 +47,11 @@ class Crawler:
                 links += [
                     a["href"] for a in anchors if self.validate_recipe_link(a["href"])
                 ]
-                
+
                 logger.info(f"{len(links)} recipe urls found")
 
-                next_url_anchor = soup.select_one("div.ds-pagination__btn--next > a")
+                next_url_anchor = soup.select_one(
+                    "div.ds-pagination__btn--next > a")
 
                 if next_url_anchor is None:
                     logger.error("No link found for next recipe overview page")
@@ -53,7 +62,6 @@ class Crawler:
                 if len(links) > 120:
                     self._db.push_new_urls(tuple(links))
                     links = []
-
 
         except Exception as e:
             print(e)
@@ -69,30 +77,130 @@ class Crawler:
         url_ids = []
         crawled_data = []
         for site in sites:
-            logger.info(f"🕷 Crawling website: '{site[1]}'")
-            try:
-                page_source = requests.get(site[1]).content
-                url_ids.append(site[0])
-            except Exception as e:
-                print(e)
-                continue
+            logger.info("Crawling website: '%s'", site[1])       
+
+            page_source = self.get_recipe_html(site[1])
+
+            url_ids.append(site[0])
+
             page_model = {}
+
+            self._soup = BeautifulSoup(page_source, "html.parser")
+
+            url = site[1]
+            url_id = site[0]
+            title = self.get_recipe_name()
+            rating = self.get_recipe_rating()
+            
+            if rating < self._min_rating:
+                # only get recipe better than min_rating
+                continue
+            
+            amount_rating = self.get_recipe_amount_ratings()
+            amount_comments = self.get_recipe_amount_comments()
+            recipe_size = self.get_recipe_size()
+            ingredients = self.get_recipe_ingredients()
+            author = self.get_recipe_author()
+            instruction = self.get_instruction()
+            categories = self.get_tags()
 
             for func in callback_list:
                 func(page_source, page_model)
 
             page_model["url"] = site[1]
             page_model["url_id"] = site[0]
-            # print(page_model)
             page_model["html"] = page_source
-            crawled_data.append(page_model)
+
+            crawled_data.append(RecipePage(
+                url_id, author, rating, amount_rating, amount_comments, ingredients,
+                recipe_size, instruction, categories, url, page_source))
+
             if len(crawled_data) >= 50:
                 self._db.push_crawled_urls(crawled_data)
                 self._db.check_visited_sites(url_ids)
                 crawled_data = []
-            sleep(4)
+            sleep(1)
+
         self._db.push_crawled_urls(crawled_data)
         self._db.check_visited_sites(url_ids)
 
     def validate_recipe_link(self, link: str) -> bool:
         return link.startswith("https://www.chefkoch.de/rezepte/")
+
+    def get_recipe_html(self, url: str) -> str:
+        try:
+            page_source = requests.get(url)
+        except Exception as e:
+            print(e)
+        return page_source.content
+
+    def get_recipe_name(self) -> str:
+        title = self._soup.find(
+            "article", class_="recipe-header").findNext('h1').text
+        return title
+
+    def get_recipe_rating(self) -> float:
+        rating = self._soup.find(
+            "div", class_="ds-rating-avg").findNext('strong').text
+        return float(rating)
+
+    def get_recipe_amount_ratings(self) -> int:
+        amount_ratings = self._soup.select(
+            ".ds-rating-count span>span")[1].text.replace(".", "")
+        return int(amount_ratings)
+
+    def get_recipe_amount_comments(self) -> int:
+        amount_comments = self._soup.find(
+            "button", class_="bi-goto-comments").findNext("strong").text.replace(".", "")
+        return amount_comments
+
+    def get_recipe_ingredients(self) -> list[Ingredient]:
+
+        all_ing = []
+
+        ingredients = self._soup.select(".ingredients")
+
+        for ingredient in ingredients:
+            list_of_ing = []
+            # collect all rows of Ingredients table
+            table_rows = ingredient.select("tbody tr")
+            for row in table_rows:
+                table_data = row.select("td")
+                # amount can be none
+                amount = table_data[0].select_one("span")
+
+                if amount:
+                    amount = stripify(amount.text)
+                else:
+                    amount = "1 Stk"
+
+                ing_name = stripify(table_data[1].select_one("span").text)
+                quantiy, unit = parse_amount(amount, ing_name)
+
+                list_of_ing.append(Ingredient(ing_name, quantiy, unit))
+
+            all_ing += list_of_ing
+
+        return all_ing
+
+    def get_recipe_size(self) -> int:
+        recipe_size = self._soup.find("input", {"name": "portionen"})['value']
+        return recipe_size
+
+    def get_recipe_author(self) -> str:
+        author = self._soup.find(
+            "div", class_="recipe-author").findNext("div", class_="ds-mb-right").findNext("span")
+        return author.text if author else "deleted user"
+
+    def get_instruction(self) -> str:
+        instructions = self._soup.find(
+            "small", class_="ds-recipe-meta rds-recipe-meta").findNext("div").text
+        instructions = re.sub(' +', ' ', instructions.strip())
+        return instructions
+
+    def get_tags(self) -> list[str]:
+        tags = []
+        tags_a = self._soup.find_all("a", class_="ds-tag bi-tags", href=True)
+        for tag in tags_a:
+            tags.append(re.sub(' +', ' ', tag.text.strip()))
+        return tags
