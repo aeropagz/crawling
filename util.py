@@ -111,7 +111,7 @@ def parse_amount(amount: str, ingredient_name: str) -> tuple[str, str]:
 
     quantity = to_float(quantity)
 
-    return float(quantity), sanitized_unit
+    return float(quantity), sanitized_unit.name
 
 
 

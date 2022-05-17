@@ -31,8 +31,7 @@ ALTER TABLE IF EXISTS public.url_visited
 
 
 -- Table: public.recipes
-
--- DROP TABLE IF EXISTS public.recipes;
+DROP TABLE IF EXISTS public.recipes;
 
 CREATE TABLE IF NOT EXISTS public.recipes
 (
@@ -47,9 +46,12 @@ CREATE TABLE IF NOT EXISTS public.recipes
     title text COLLATE pg_catalog."default",
     amount_comments bigint,
     rating real,
-    reviews bigint,
+    amount_ratings bigint,
+    img text,
+    difficulty text,
+    preptime text,
     CONSTRAINT recipes_pkey PRIMARY KEY (id)
-)
+);
 
 TABLESPACE pg_default;
 

@@ -1,4 +1,5 @@
 from psycopg2 import errors, connect
+from model.RecipePage import RecipePage
 
 
 import json
@@ -34,17 +35,17 @@ class RecipeDb:
             if unique_links:
                 self.push_new_urls(tuple(unique_links))
 
-    def push_crawled_urls(self, page_models: list) -> None:
+    def push_crawled_urls(self, recipes: list[RecipePage]) -> None:
         rows_affected = 0
-        for model in page_models:
-            self.__db_cur.execute("INSERT INTO recipes ( title, html, ingredients, rating, reviews, "
-                                  "instructions, author, url, url_id, tags, amount_comments) VALUES (%s, %s, %s,%s,"
-                                  "%s,%s,%s,%s,%s,%s,%s)",
-                                  (model["title"], model["html"], json.dumps(model["ingredients"]), model["rating"],
-                                   model["reviews"], model["instructions"], model["author"], model["url"],
-                                   model["url_id"], model["tags"], model["amount_comments"]))
+        for recipe in recipes:
+            self.__db_cur.execute("INSERT INTO recipes ( title, html, ingredients, rating, amount_ratings, "
+                                  "instructions, author, url, url_id, tags, amount_comments, img, difficulty, preptime) VALUES (%s, %s, %s,%s,"
+                                  "%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
+                                  (recipe.title, recipe.html, recipe.ingredients, recipe.rating,
+                                   recipe.amount_ratings, recipe.instruction, recipe.author, recipe.url,
+                                   recipe.url_id, recipe.tags, recipe.amount_comments, recipe.img, recipe.difficulty, recipe.preptime))
             rows_affected += self.__db_cur.rowcount
-        if rows_affected != len(page_models):
+        if rows_affected != len(recipes):
             print("Something went wrong during upload crawled data")
             print("affected rows are not equal to passed-in pages")
             raise
@@ -64,3 +65,30 @@ class RecipeDb:
             self.__db_cur.execute(
                 "UPDATE url_visited SET visited = TRUE WHERE id = %s", [url_id])
         self.__db_conn.commit()
+
+    def get_top_40_recipe(self):
+        self.__db_cur.execute(
+            "SELECT title, author, rating, amount_ratings, ingredients, instructions, tags, img, preptime, difficulty FROM recipes "
+            "WHERE rating >= 4.8 and amount_ratings >= 200 "
+            "ORDER BY rating "
+            "LIMIT 40"
+        )
+        res = self.__db_cur.fetchall()
+
+        recipes = []
+        for recipe in res:
+            title, author, rating, amount_ratings, ingredients, instructions, tags, img, preptime, difficulty = recipe
+            recipe_dict = {"title": title,
+                           "author": author,
+                           "rating": rating,
+                           "amount_ratings": amount_ratings,
+                           "ingredients": ingredients,
+                           "instructions": instructions,
+                           "tags": tags,
+                           "img": img,
+                           "preptime": preptime,
+                           "difficulty": difficulty
+                           }
+            recipes.append(recipe_dict)
+
+        return recipes

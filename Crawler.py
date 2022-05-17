@@ -1,8 +1,13 @@
 import requests
 import re
 from bs4 import BeautifulSoup
-from typing import Callable, List
+from dataclasses import asdict
 import logging
+import base64
+import requests
+import json
+
+
 from time import sleep
 from model.RecipePage import RecipePage
 
@@ -18,7 +23,6 @@ class Crawler:
         self._db = recipe_db
         self._min_rating = min_rating
         self._soup = None
-
 
     def get_last_url(self) -> str | None:
         with open("last_url.txt", "r+") as file:
@@ -70,20 +74,16 @@ class Crawler:
             self._db.push_new_urls(links)
             raise
 
-    def crawl_items(
-        self, callback_list: List[Callable[[str, dict], None]], limit: int = 100
-    ) -> None:
+    def crawl_items(self, limit: int = 100) -> None:
         sites = self._db.get_unvisited_sites(limit)
         url_ids = []
         crawled_data = []
         for site in sites:
-            logger.info("Crawling website: '%s'", site[1])       
+            logger.info("Crawling website: '%s'", site[1])
 
-            page_source = self.get_recipe_html(site[1])
+            page_source = self.get_recipe_html(site[1]).decode("utf-8")
 
             url_ids.append(site[0])
-
-            page_model = {}
 
             self._soup = BeautifulSoup(page_source, "html.parser")
 
@@ -91,11 +91,11 @@ class Crawler:
             url_id = site[0]
             title = self.get_recipe_name()
             rating = self.get_recipe_rating()
-            
+
             if rating < self._min_rating:
                 # only get recipe better than min_rating
                 continue
-            
+
             amount_rating = self.get_recipe_amount_ratings()
             amount_comments = self.get_recipe_amount_comments()
             recipe_size = self.get_recipe_size()
@@ -103,22 +103,32 @@ class Crawler:
             author = self.get_recipe_author()
             instruction = self.get_instruction()
             categories = self.get_tags()
-
-            for func in callback_list:
-                func(page_source, page_model)
-
-            page_model["url"] = site[1]
-            page_model["url_id"] = site[0]
-            page_model["html"] = page_source
+            img = self.get_img()
+            difficulty = self.get_difficulty()
+            preptime = self.get_preptime()
 
             crawled_data.append(RecipePage(
-                url_id, author, rating, amount_rating, amount_comments, ingredients,
-                recipe_size, instruction, categories, url, page_source))
+                url_id,
+                title,
+                author,
+                rating,
+                amount_rating,
+                amount_comments,
+                ingredients,
+                recipe_size,
+                instruction,
+                categories,
+                img,
+                difficulty,
+                preptime,
+                url,
+                page_source))
 
-            if len(crawled_data) >= 50:
+            if len(crawled_data) >= 100:
                 self._db.push_crawled_urls(crawled_data)
                 self._db.check_visited_sites(url_ids)
                 crawled_data = []
+                break
             sleep(1)
 
         self._db.push_crawled_urls(crawled_data)
@@ -152,7 +162,7 @@ class Crawler:
     def get_recipe_amount_comments(self) -> int:
         amount_comments = self._soup.find(
             "button", class_="bi-goto-comments").findNext("strong").text.replace(".", "")
-        return amount_comments
+        return int(amount_comments)
 
     def get_recipe_ingredients(self) -> list[Ingredient]:
 
@@ -177,11 +187,11 @@ class Crawler:
                 ing_name = stripify(table_data[1].select_one("span").text)
                 quantiy, unit = parse_amount(amount, ing_name)
 
-                list_of_ing.append(Ingredient(ing_name, quantiy, unit))
+                list_of_ing.append(asdict(Ingredient(ing_name, quantiy, unit)))
 
             all_ing += list_of_ing
 
-        return all_ing
+        return json.dumps(all_ing)
 
     def get_recipe_size(self) -> int:
         recipe_size = self._soup.find("input", {"name": "portionen"})['value']
@@ -204,3 +214,18 @@ class Crawler:
         for tag in tags_a:
             tags.append(re.sub(' +', ' ', tag.text.strip()))
         return tags
+
+    def get_img(self) -> dict[str, str]:
+        img_tag = self._soup.find("img" )
+        
+        data = base64.b64encode(requests.get(
+            img_tag["src"]).content).decode("utf-8")
+        return data
+
+    def get_preptime(self) -> str:
+        preptime = self._soup.find("span", class_="recipe-preptime")
+        return preptime.text.split("\n")[1].strip()
+
+    def get_difficulty(self) -> str:
+        difficulty = self._soup.find("span", class_="recipe-difficulty")
+        return difficulty.text.split("\n")[1].strip()
