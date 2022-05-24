@@ -73,3 +73,6 @@ fabric.properties
 venv/
 
 logs.txt
+
+__pycache__/
+.vscode/
