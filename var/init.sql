@@ -47,6 +47,7 @@ CREATE TABLE IF NOT EXISTS public.recipes
     amount_comments bigint,
     rating real,
     amount_ratings bigint,
+    recipe_size bigint,
     img text,
     difficulty text,
     preptime text,

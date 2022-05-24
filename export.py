@@ -11,6 +11,6 @@ if __name__ == "__main__":
 
     recipe_db = RecipeDb(db_user, db_pass, db_name, db_host)
 
-    recipes = recipe_db.get_top_40_recipe()
+    recipes = recipe_db.get_top_n_recipe(40)
     with open("export_top_40.json",  "w", encoding='utf8') as f:
         json.dump(recipes, f, ensure_ascii=False)

@@ -124,11 +124,10 @@ class Crawler:
                 url,
                 page_source))
 
-            if len(crawled_data) >= 100:
+            if len(crawled_data) >= 25:
                 self._db.push_crawled_urls(crawled_data)
                 self._db.check_visited_sites(url_ids)
                 crawled_data = []
-                break
             sleep(1)
 
         self._db.push_crawled_urls(crawled_data)
@@ -195,7 +194,7 @@ class Crawler:
 
     def get_recipe_size(self) -> int:
         recipe_size = self._soup.find("input", {"name": "portionen"})['value']
-        return recipe_size
+        return int(recipe_size)
 
     def get_recipe_author(self) -> str:
         author = self._soup.find(

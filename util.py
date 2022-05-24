@@ -31,16 +31,13 @@ UNIT_MAPPING = {
     "prise": UnitEnum.prise,
     "prise(n)": UnitEnum.prise,
     "prisen": UnitEnum.prise,
-    "etwas": UnitEnum.etwas,
-    "spritzer": UnitEnum.etwas,
-    "bund": UnitEnum.bund
+    "misc": UnitEnum.misc
 }
 
 EXCLUDE = ["gestr.", "kl", "gr"]
 
-DEFAULT_UNIT = UNIT_MAPPING["stk"]
+DEFAULT_UNIT = UNIT_MAPPING["misc"]
 DEFAULT_QUANTITY = 1
-
 
 
 def stripify(text: str) -> str:
@@ -112,7 +109,6 @@ def parse_amount(amount: str, ingredient_name: str) -> tuple[str, str]:
     quantity = to_float(quantity)
 
     return float(quantity), sanitized_unit.name
-
 
 
 class CustomFormatter(logging.Formatter):

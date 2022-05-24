@@ -5,8 +5,8 @@ import os
 import logging
 
 
-logging.basicConfig(
-    format='%(asctime)s - %(levelname)s | %(name)s: %(message)s', level=logging.INFO)
+logging.basicConfig(filename="logs.txt", filemode="a",
+                    format='%(asctime)s - %(levelname)s | %(name)s: %(message)s', level=logging.WARN)
 
 
 if __name__ == "__main__":

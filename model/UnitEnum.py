@@ -13,5 +13,4 @@ class UnitEnum(enum.Enum):
     msp = 9
     becher = 10
     prise = 11
-    bund = 12
-    etwas = 13
+    misc = 12
