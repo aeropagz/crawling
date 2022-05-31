@@ -40,6 +40,7 @@ class Crawler:
         saved_url = self.get_last_url()
         next_url = saved_url if saved_url is not None else start_url
         links = []
+        urls_saved = 0
 
         try:
             while next_url:
@@ -65,10 +66,12 @@ class Crawler:
 
                 if len(links) > 120:
                     self._db.push_new_urls(tuple(links))
+                    urls_saved += len(links)
+                    logger.info(f"{urls_saved} urls pushed")
                     links = []
 
         except Exception as e:
-            print(e)
+            logger.error(e)
             with open("last_url.txt", "w") as file:
                 file.write(next_url)
             self._db.push_new_urls(links)
@@ -186,7 +189,8 @@ class Crawler:
                 ing_name = stripify(table_data[1].select_one("span").text)
                 quantiy, unit = parse_amount(amount, ing_name)
 
-                list_of_ing.append(asdict(Ingredient(ing_name, quantiy, unit)))
+                list_of_ing.append(
+                    asdict(Ingredient(ing_name, quantiy, unit, [])))
 
             all_ing += list_of_ing
 
@@ -215,8 +219,8 @@ class Crawler:
         return tags
 
     def get_img(self) -> dict[str, str]:
-        img_tag = self._soup.find("img" )
-        
+        img_tag = self._soup.find("img")
+
         data = base64.b64encode(requests.get(
             img_tag["src"]).content).decode("utf-8")
         return data

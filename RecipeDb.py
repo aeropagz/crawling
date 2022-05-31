@@ -68,7 +68,7 @@ class RecipeDb:
 
     def get_top_n_recipe(self, n: int):
         self.__db_cur.execute(
-            "SELECT title, recipe_size, rating, amount_ratings, ingredients, instructions, tags, img, preptime, difficulty, url FROM recipes "
+            "SELECT id, title, recipe_size, rating, amount_ratings, ingredients, instructions, tags, img, preptime, difficulty, url FROM recipes "
             "WHERE rating >= 4.0 and amount_ratings >= 200 "
             "ORDER BY rating "
             "LIMIT 40"
@@ -77,19 +77,21 @@ class RecipeDb:
 
         recipes = []
         for recipe in res:
-            title, recipe_size, rating, amount_ratings, ingredients, instructions, tags, img, preptime, difficulty, url = recipe
-            recipe_dict = {"title": title,
-                           "rating": rating,
-                           "recipe_size": recipe_size,
-                           "amount_ratings": amount_ratings,
-                           "ingredients": ingredients,
-                           "instructions": instructions,
-                           "tags": tags,
-                           "img": img,
-                           "preptime": preptime,
-                           "difficulty": difficulty,
-                           "link": url
-                           }
+            id, title, recipe_size, rating, amount_ratings, ingredients, instructions, tags, img, preptime, difficulty, url = recipe
+            recipe_dict = {
+                "id": id,
+                "title": title,
+                "rating": rating,
+                "recipe_size": recipe_size,
+                "amount_ratings": amount_ratings,
+                "ingredients": ingredients,
+                "instructions": instructions,
+                "tags": tags,
+                "img": img,
+                "preptime": preptime,
+                "difficulty": difficulty,
+                "link": url
+            }
             recipes.append(recipe_dict)
 
         return recipes

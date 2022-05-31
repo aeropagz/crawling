@@ -1,0 +1,54 @@
+2022-05-31 14:49:54,937 - INFO | crawler: 47 recipe urls found
+2022-05-31 14:49:55,522 - INFO | crawler: 94 recipe urls found
+2022-05-31 14:49:56,298 - INFO | crawler: 141 recipe urls found
+2022-05-31 14:49:56,377 - INFO | crawler: 141 urls pushed
+2022-05-31 14:49:57,281 - INFO | crawler: 47 recipe urls found
+2022-05-31 14:49:57,908 - INFO | crawler: 94 recipe urls found
+2022-05-31 14:49:58,532 - INFO | crawler: 141 recipe urls found
+2022-05-31 14:49:58,548 - INFO | crawler: 282 urls pushed
+2022-05-31 14:49:59,245 - INFO | crawler: 47 recipe urls found
+2022-05-31 14:49:59,859 - INFO | crawler: 94 recipe urls found
+2022-05-31 14:50:00,705 - INFO | crawler: 141 recipe urls found
+2022-05-31 14:50:00,717 - INFO | crawler: 423 urls pushed
+2022-05-31 14:50:02,039 - INFO | crawler: 47 recipe urls found
+2022-05-31 14:50:02,694 - INFO | crawler: 94 recipe urls found
+2022-05-31 14:50:03,959 - INFO | crawler: 141 recipe urls found
+2022-05-31 14:50:03,974 - INFO | crawler: 564 urls pushed
+2022-05-31 14:50:04,705 - INFO | crawler: 47 recipe urls found
+2022-05-31 14:50:05,368 - INFO | crawler: 94 recipe urls found
+2022-05-31 14:50:06,455 - INFO | crawler: 141 recipe urls found
+2022-05-31 14:50:06,471 - INFO | crawler: 705 urls pushed
+2022-05-31 14:50:07,229 - INFO | crawler: 47 recipe urls found
+2022-05-31 14:50:08,056 - INFO | crawler: 94 recipe urls found
+2022-05-31 14:50:08,799 - INFO | crawler: 141 recipe urls found
+2022-05-31 14:50:08,809 - INFO | crawler: 846 urls pushed
+2022-05-31 14:50:09,640 - INFO | crawler: 47 recipe urls found
+2022-05-31 14:50:10,434 - INFO | crawler: 94 recipe urls found
+2022-05-31 14:50:11,165 - INFO | crawler: 141 recipe urls found
+2022-05-31 14:50:11,182 - INFO | crawler: 987 urls pushed
+2022-05-31 14:50:11,884 - INFO | crawler: 47 recipe urls found
+2022-05-31 14:50:12,717 - INFO | crawler: 94 recipe urls found
+2022-05-31 14:50:13,255 - INFO | crawler: 141 recipe urls found
+2022-05-31 14:50:13,267 - INFO | crawler: 1128 urls pushed
+2022-05-31 14:50:13,791 - INFO | crawler: 22 recipe urls found
+2022-05-31 14:50:14,678 - INFO | crawler: 44 recipe urls found
+2022-05-31 14:50:15,841 - INFO | crawler: 66 recipe urls found
+2022-05-31 14:50:16,332 - INFO | crawler: 88 recipe urls found
+2022-05-31 14:50:17,071 - INFO | crawler: 110 recipe urls found
+2022-05-31 14:50:17,640 - INFO | crawler: 132 recipe urls found
+2022-05-31 14:50:17,650 - INFO | crawler: 1260 urls pushed
+2022-05-31 14:50:18,227 - INFO | crawler: 22 recipe urls found
+2022-05-31 14:50:19,329 - INFO | crawler: 44 recipe urls found
+2022-05-31 14:50:20,039 - INFO | crawler: 66 recipe urls found
+2022-05-31 14:50:20,643 - INFO | crawler: 88 recipe urls found
+2022-05-31 14:50:21,091 - INFO | crawler: 110 recipe urls found
+2022-05-31 14:50:21,877 - INFO | crawler: 132 recipe urls found
+2022-05-31 14:50:21,942 - INFO | crawler: 1392 urls pushed
+2022-05-31 14:50:22,480 - INFO | crawler: 22 recipe urls found
+2022-05-31 14:50:22,989 - INFO | crawler: 44 recipe urls found
+2022-05-31 14:50:23,740 - INFO | crawler: 66 recipe urls found
+2022-05-31 14:50:24,302 - INFO | crawler: 88 recipe urls found
+2022-05-31 14:50:25,577 - INFO | crawler: 110 recipe urls found
+2022-05-31 14:50:26,498 - INFO | crawler: 132 recipe urls found
+2022-05-31 14:50:26,510 - INFO | crawler: 1524 urls pushed
+2022-05-31 14:50:27,084 - INFO | crawler: 22 recipe urls found
