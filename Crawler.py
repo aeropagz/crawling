@@ -69,6 +69,7 @@ class Crawler:
                     urls_saved += len(links)
                     logger.info(f"{urls_saved} urls pushed")
                     links = []
+                sleep(1)
 
         except Exception as e:
             logger.error(e)

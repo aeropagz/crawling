@@ -44,6 +44,7 @@ def main():
     elif "recipe" in args.mode:
         while True:
             crawler.crawl_items(200)
+            
     elif "export" in args.mode:
         recipes = recipe_db.get_top_n_recipe(40)
         with open("export_top_40.json",  "w", encoding='utf8') as f:

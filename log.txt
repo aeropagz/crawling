@@ -52,3 +52,13 @@
 2022-05-31 14:50:26,498 - INFO | crawler: 132 recipe urls found
 2022-05-31 14:50:26,510 - INFO | crawler: 1524 urls pushed
 2022-05-31 14:50:27,084 - INFO | crawler: 22 recipe urls found
+2022-05-31 14:58:20,544 - INFO | crawler: 47 recipe urls found
+2022-05-31 14:58:21,117 - INFO | crawler: 94 recipe urls found
+2022-05-31 14:58:21,825 - INFO | crawler: 141 recipe urls found
+2022-05-31 14:58:21,927 - INFO | crawler: 141 urls pushed
+2022-05-31 14:58:22,490 - INFO | crawler: 47 recipe urls found
+2022-05-31 14:58:23,403 - INFO | crawler: 94 recipe urls found
+2022-05-31 14:58:24,106 - INFO | crawler: 141 recipe urls found
+2022-05-31 14:58:24,119 - INFO | crawler: 282 urls pushed
+2022-05-31 14:58:25,025 - INFO | crawler: 47 recipe urls found
+2022-05-31 14:58:25,611 - INFO | crawler: 94 recipe urls found
